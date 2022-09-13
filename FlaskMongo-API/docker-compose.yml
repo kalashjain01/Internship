@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+
+  flask:
+    build: ./flask
+    container_name: flask
+    expose:
+      - "5000"
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.2
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+    - "80:80"
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.3
+  
+  mongo:
+    image: mongo:3
+    restart: always
+    ports:
+      - 27017:27017
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.4
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1

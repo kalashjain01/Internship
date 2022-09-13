@@ -3,9 +3,7 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 
 app = Flask(__name__)
-
-# app.config["MONGO_URI"] = "mongodb://localhost:27017/db_name"
-app.config["MONGO_URI"] = "mongodb://localhost:27017/users"
+app.config["MONGO_URI"] = "mongodb://mongo:27017/users"
 mongo = PyMongo(app)
 user_collection = mongo.db.user
 
@@ -16,11 +14,11 @@ def form():
 @app.route("/read", methods = ['GET'])
 def read():
     if request.method == 'GET':
-        output =[]
+        output = []
         for i in user_collection.find():
            print(i)
-           output.append({'Name': i['Name'], 'Phone Number': i['Phone Number'], 'Location': i['Location']})
-           return jsonify({'users':output})
+           output.append({ '_id': str(ObjectId(i['_id'])) , 'Name': i['Name'], 'Phone Number': i['Phone Number'], 'Location': i['Location']})
+        return jsonify({'users': output})
 
 @app.route("/create", methods = ['GET'])
 def create():
@@ -33,8 +31,8 @@ def create():
                 {'Name': name,'Phone Number': phone,'Location': loc})
             return jsonify({'Name': name,'Phone Number': phone,'Location': loc,'Status': "Successfully Inserted"})
         else:
-            return jsonify({'Status': "Unsuccessfully Inserted"}) 
-            
+            return jsonify({'Status': "Unsuccessfully Inserted --> Please fill all the details first"}) 
+                            
 @app.route("/update", methods = ['GET'])
 def update():
     if request.method == 'GET':
@@ -50,8 +48,10 @@ def update():
 def delete():
     if request.method == 'GET':
         id = request.args.get('id')
-        user = user_collection.delete_one({'_id': ObjectId(id)})
-        return jsonify({"Successfully Deleted": id})
-
+        if id != "":
+           user = user_collection.delete_one({'_id': ObjectId(id)})
+           return jsonify({"Successfully Deleted": id})
+        else:
+            return jsonify({"Unsuccessfully Deleted":"Please fill the id first"})
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True , host='0.0.0.0')
