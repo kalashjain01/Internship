@@ -1,0 +1,19 @@
+version: "3"
+services:   
+      
+  flask:
+    build: ./flask
+    container_name: flask
+    image: flask
+    environment:
+      MONGO_URI: "mongodb://mongo/users"
+    ports:
+      - 5000:5000
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:3
+    container_name: mongo
+    command: mongod --port 27017 --bind_ip 0.0.0.0
+    ports:
+      - 27017:27017
